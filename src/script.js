@@ -10,6 +10,47 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
 // volumetric / godrays shaders
 import godRaysShaders from '../static/js/godrays-shaders.js'
+import portalVertexShader from './shaders/portal/vertex.glsl'
+import portalFragmentShader from './shaders/portal/fragment.glsl'
+
+// import videoTexture from '../static/js/video-texture.js'
+///////////
+// VIDEO //
+///////////
+
+// create the video element
+let video = document.createElement( 'video' );
+// video.id = 'video';
+// video.type = ' video/ogg; codecs="theora, vorbis" ';
+video.src = "video/teenage-conflict-1960-xs-comp.mp4";
+video.load(); // must call after setting/changing source
+video.loop = true
+video.play();
+
+// alternative method -- 
+// create DIV in HTML:
+// <video id="myVideo" autoplay style="display:none">
+//		<source src="videos/sintel.ogv" type='video/ogg; codecs="theora, vorbis"'>
+// </video>
+// and set JS variable:
+// video = document.getElementById( 'myVideo' );
+
+let videoImage = document.createElement( 'canvas' );
+videoImage.width = 675;
+videoImage.height = 540;
+
+let videoImageContext = videoImage.getContext( '2d' );
+// background color if no video present
+videoImageContext.fillStyle = '#000000';
+videoImageContext.fillRect( 0, 0, videoImage.width, videoImage.height );
+
+let videoTexture = new THREE.Texture( videoImage );
+videoTexture.minFilter = THREE.LinearFilter;
+videoTexture.magFilter = THREE.LinearFilter;
+
+var movieMaterial = new THREE.MeshBasicMaterial( { map: videoTexture, overdraw: true, side:THREE.DoubleSide } );
+// the geometry on which the movie will be displayed;
+// 		movie image will be scaled to fit these dimensions.
 
 // /**
 //  * Spector JS
@@ -34,17 +75,24 @@ let renderer = null
 let controls = null
 let effectComposer = null
 let renderTarget = null
-let gui = null
 let clock = null
 
 let posSpotLightTL = null
+
+// Debug
+let gui = new dat.GUI({
+  width: 400
+})
+
+dat.GUI.toggleHide()
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
 // Preloader and play buttons
 const preloaderOverlay = document.querySelector('.loader-overlay')
 const playButton = document.querySelector('.sound-button')
-preloaderOverlay.style.display = 'none'
+// preloaderOverlay.style.display = 'none'
+// preloaderOverlay.style.opacity = 0
 
 // Scene
 const scene = new THREE.Scene()
@@ -90,7 +138,7 @@ bakedTexture.encoding = THREE.sRGBEncoding
 const bakedMaterial = new THREE.MeshBasicMaterial({ map: bakedTexture })
 
 // Portal light material
-const portalLightMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff })
+let portalLightMaterial = null
 const boxLightSmallMaterial = new THREE.MeshBasicMaterial({ color: 0xffc0cb })
 const boxLightLargeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff })
 
@@ -111,15 +159,17 @@ export default class Setup {
     this.allSpots = []
     this.coneHeight = 22
 
+    this.debugObject = {}
+
     // To store all sounds
     this.allSounds = []
 
+    this.makeShaderMaterial() // First lets make the shader material since dat gui needs it
+    this.setupTweakGui() // Secondly lets setup tweak gui
     this.init()
     this.setupNecessaryAudio()
     this.loadModel()
-    this.makeShaderMaterial()
     // this.addGodRays()
-    this.setupTweakGui()
     this.initPostprocessing()
     this.tick()
     // Add DOM events
@@ -160,11 +210,6 @@ export default class Setup {
 
     // Make clock
     clock = new THREE.Clock()
-
-    // Debug
-    gui = new dat.GUI({
-      width: 400
-    })
 
     window.addEventListener('resize', this.onResize)  
   }
@@ -222,7 +267,7 @@ export default class Setup {
           // portalLightMesh.material = portalLightMaterial
           // poleLightAMesh.material = poleLightMaterial
           // poleLightBMesh.material = poleLightMaterial
-          
+
           // My 'landscape-playground.blend' model
           // Traverse scene if wanting to look for things and names
           gltf.scene.traverse( child => {
@@ -265,16 +310,44 @@ export default class Setup {
 
           const boxLightSmall = gltf.scene.children.find(child => child.name === 'boxLightSmall')
           const boxLightLarge = gltf.scene.children.find(child => child.name === 'boxLightLarge')
+          const lightBoxLarge = gltf.scene.children.find(child => child.name === 'lightBoxLarge')
           const neonLightOne = gltf.scene.children.find(child => child.name === 'NeonLight1')
           // const spotLightTL = gltf.scene.children.find(child => child.name === 'SpotLightTL')
 
           boxLightSmall.material = boxLightSmallMaterial
-          boxLightLarge.material = boxLightLargeMaterial
+          // boxLightLarge.material = boxLightLargeMaterial
+          // boxLightLarge.material = portalLightMaterial
+          // boxLightLarge.material = movieMaterial
+          // console.log('boxLightLarge: ')
+          // console.log(boxLightLarge)
+          this.lightBoxLarge = lightBoxLarge
           neonLightOne.material = boxLightLargeMaterial
 
+          // hide lightBoxLarge for testing
+          // lightBoxLarge.visible = false
+          boxLightLarge.visible = false
+
           scene.add(gltf.scene)
+
+          this.setupOtherObjects()
       }
     )
+  }
+
+  setupOtherObjects() {
+    const videoSize = {w: 4, h: 4}
+    var movieGeometry = new THREE.PlaneGeometry( videoSize.w, videoSize.h, 4, 4 );
+    var movieScreen = new THREE.Mesh( movieGeometry, movieMaterial );
+    movieScreen.position.copy(this.lightBoxLarge.position)
+    movieScreen.position.y += movieScreen.scale.y
+    movieScreen.rotation.copy(this.lightBoxLarge.rotation)
+    movieScreen.rotation.y = Math.PI
+    // movieScreen.rotation.set(new THREE.Vector3( 0, Math.PI / 2, 0));
+    movieScreen.scale.copy(this.lightBoxLarge.scale)
+    movieScreen.scale.x /= 2 
+    movieScreen.scale.y /= 2 
+    scene.add(movieScreen);
+
   }
 
   setupTweakGui() {
@@ -285,6 +358,34 @@ export default class Setup {
     const parameters = {
       color: 0xff0000
     }
+    // Pole light material
+    const poleLightMaterial = new THREE.MeshBasicMaterial({ color: 0xffffe5 })
+
+    // Portal light material
+    this.debugObject.portalColorStart = '#ff0000'
+    this.debugObject.portalColorEnd = '#0000ff'
+
+    gui
+      .addColor(this.debugObject, 'portalColorStart')
+      .onChange(() => {
+        portalLightMaterial.uniforms.uColorStart.value.set(this.debugObject.portalColorStart)
+      })
+
+    gui
+      .addColor(this.debugObject, 'portalColorEnd')
+      .onChange(() => {
+        portalLightMaterial.uniforms.uColorEnd.value.set(this.debugObject.portalColorEnd)
+      })
+
+    portalLightMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uColorStart: { value: new THREE.Color(this.debugObject.portalColorStart) },
+        uColorEnd: { value: new THREE.Color(this.debugObject.portalColorEnd) }
+      },
+      vertexShader: portalVertexShader,
+      fragmentShader: portalFragmentShader
+    })
 
     gui.add( self.coneRadius, 'value' ).min(1).max(10).step(0.1).name('Cone Radius')
     // gui.add( self.coneHeight, 'value').min(1).max(30).step(0.1).name('Cone height')
@@ -427,6 +528,16 @@ export default class Setup {
 
   tick() {
     const elapsedTime = clock.getElapsedTime()
+
+    // Update materials
+    portalLightMaterial.uniforms.uTime.value = elapsedTime
+
+    // Video material
+    if ( video.readyState === video.HAVE_ENOUGH_DATA ) {
+      videoImageContext.drawImage( video, 0, 0 );
+      if ( videoTexture ) 
+        videoTexture.needsUpdate = true;
+    }
   
     // Update controls
     controls.update()
@@ -461,7 +572,12 @@ export default class Setup {
       console.log('play')
       this.listener.context.resume()
       preloaderOverlay.classList.add('loaded')
-    }) 
+    })
+    // preloaderOverlay.addEventListener('click', () => {
+    //   console.log('play')
+    //   this.listener.context.resume()
+    //   preloaderOverlay.classList.add('loaded')
+    // })
   }
 }
 
