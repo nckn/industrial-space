@@ -164,6 +164,12 @@ export default class Setup {
     // To store all sounds
     this.allSounds = []
 
+    // Add DOM events
+    this.addDOMEvents()
+    // this.masterInit()
+  }
+
+  masterInit() {
     this.makeShaderMaterial() // First lets make the shader material since dat gui needs it
     this.setupTweakGui() // Secondly lets setup tweak gui
     this.init()
@@ -172,8 +178,6 @@ export default class Setup {
     // this.addGodRays()
     this.initPostprocessing()
     this.tick()
-    // Add DOM events
-    this.addDOMEvents()
   }
 
   init() {
@@ -571,10 +575,13 @@ export default class Setup {
   }
 
   addDOMEvents() {
+    var self = this
     playButton.addEventListener('click', () => {
       console.log('play')
       this.listener.context.resume()
       preloaderOverlay.classList.add('loaded')
+      // Add DOM events
+      self.masterInit()
     })
     // preloaderOverlay.addEventListener('click', () => {
     //   console.log('play')
