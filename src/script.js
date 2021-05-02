@@ -195,7 +195,7 @@ export default class Setup {
     controls.enablePan = false
     // Set max polar angle
     controls.maxPolarAngle = (Math.PI * 0.5) * 0.99
-    controls.minDistance = 10
+    controls.minDistance = 5
     // controls.maxDistance = 50
     /**
      * Renderer
@@ -253,6 +253,7 @@ export default class Setup {
     gltfLoader.load(
       // 'portal.glb', // org. from Bruno Simon
       // 'landscape-playground.glb', // Mine from landscape-playground.blend
+      // 'industrial-space-1b-as-in-better-spline-res.glb', // Mine from landscape-playground.blend
       'industrial-space-1.glb', // Mine from landscape-playground.blend
       (gltf) =>
       {
@@ -339,13 +340,15 @@ export default class Setup {
     var movieGeometry = new THREE.PlaneGeometry( videoSize.w, videoSize.h, 4, 4 );
     var movieScreen = new THREE.Mesh( movieGeometry, movieMaterial );
     movieScreen.position.copy(this.lightBoxLarge.position)
-    movieScreen.position.y += movieScreen.scale.y
-    movieScreen.rotation.copy(this.lightBoxLarge.rotation)
-    movieScreen.rotation.y = Math.PI
+    movieScreen.position.y += movieScreen.scale.y / 2
+    movieScreen.position.x -= 0.2
+    movieScreen.position.z -= 0.1
+    // movieScreen.rotation.copy(this.lightBoxLarge.rotation * new THREE.Vector3(Math.PI / 2, Math.PI / 2, Math.PI / 2))
+    movieScreen.rotation.y = 1.1
     // movieScreen.rotation.set(new THREE.Vector3( 0, Math.PI / 2, 0));
     movieScreen.scale.copy(this.lightBoxLarge.scale)
-    movieScreen.scale.x /= 2 
-    movieScreen.scale.y /= 2 
+    movieScreen.scale.x /= 4
+    movieScreen.scale.y /= 4
     scene.add(movieScreen);
 
   }
