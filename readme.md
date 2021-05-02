@@ -14,3 +14,8 @@ npm run dev
 # Build for production in the dist/ directory
 npm run build
 ```
+
+TODO
+- add shader from ex. 35
+- tv shader w/ post-processing lines (type)
+- 

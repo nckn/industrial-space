@@ -18,6 +18,9 @@ import godRaysShaders from '../static/js/godrays-shaders.js'
 // const spector = new SPECTOR.Spector()
 // spector.displayUI()
 
+// Audio example
+// https://github.com/mrdoob/three.js/blob/master/examples/webaudio_sandbox.html
+
 /**
  * Sizes
  */
@@ -38,6 +41,10 @@ let posSpotLightTL = null
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
+// Preloader and play buttons
+const preloaderOverlay = document.querySelector('.loader-overlay')
+const playButton = document.querySelector('.sound-button')
+preloaderOverlay.style.display = 'none'
 
 // Scene
 const scene = new THREE.Scene()
@@ -46,6 +53,12 @@ const scene = new THREE.Scene()
 // const far = 100;
 // scene.fog = new THREE.Fog(color, near, far);
 // scene.fog = new THREE.FogExp2( 0x000000, 0.1 );
+
+const sounds = [
+  {name: 'NeonLight1', path: 'neon-hypnotizing-506434.mp3', volume: 0.4},
+  {name: 'boxLightSmall', path: 'hum-also-known-as-sun.mp3', volume: 0.05}
+]
+let canPassSound = false
 
 /**
  * Loaders
@@ -98,13 +111,19 @@ export default class Setup {
     this.allSpots = []
     this.coneHeight = 22
 
+    // To store all sounds
+    this.allSounds = []
+
     this.init()
+    this.setupNecessaryAudio()
     this.loadModel()
     this.makeShaderMaterial()
     // this.addGodRays()
     this.setupTweakGui()
     this.initPostprocessing()
     this.tick()
+    // Add DOM events
+    this.addDOMEvents()
   }
 
   init() {
@@ -114,7 +133,7 @@ export default class Setup {
      * Camera
      */
     // Base camera
-    camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 0.1, 100)
+    camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 0.1, 1000)
     camera.position.x = 4
     camera.position.y = 2
     camera.position.z = 4
@@ -127,7 +146,7 @@ export default class Setup {
     // Set max polar angle
     controls.maxPolarAngle = (Math.PI * 0.5) * 0.99
     controls.minDistance = 10
-    controls.maxDistance = 50
+    // controls.maxDistance = 50
     /**
      * Renderer
      */
@@ -150,6 +169,37 @@ export default class Setup {
     window.addEventListener('resize', this.onResize)  
   }
 
+  setupNecessaryAudio() {
+    var self = this
+    // Create a listener
+    this.listener = new THREE.AudioListener()
+    camera.add( this.listener )
+    // Create sound loader
+    this.audioLoader = new THREE.AudioLoader()
+  }
+
+  loadSound(soundIndex, parent) {
+    var self = this
+    var sound = new THREE.PositionalAudio( self.listener );
+    console.log('sound index: ', 'sound/' + sounds[ soundIndex ])
+    // return
+    this.audioLoader.load( 'sound/' + sounds[ soundIndex ].path, function ( buffer ) {
+      sound.setBuffer( buffer )
+      sound.setRefDistance( 20 )
+      sound.setLoop( true )
+      sound.setVolume( sounds[ soundIndex ].volume )
+      sound.play() 
+      parent.add( sound )
+      // sounds.audio = sound
+      // console.log('its working alright')
+    })
+    //
+    // store sound and add to global array
+    const analyser = new THREE.AudioAnalyser( sound, 32 );
+    this.allSounds.push( {snd: sound, analyser: analyser} )
+    // console.log()
+  }
+  
   loadModel() {
     var self = this
     /**
@@ -176,7 +226,8 @@ export default class Setup {
           // My 'landscape-playground.blend' model
           // Traverse scene if wanting to look for things and names
           gltf.scene.traverse( child => {
-            console.log(child)
+            // console.log(child)
+            console.log(child.name)
             child.material = bakedMaterial
             // If there are walls hide them for now. Until single side material so cam can look through each of them
             if (
@@ -194,6 +245,21 @@ export default class Setup {
               posSpotLightTL = child.position.clone()
               // console.log(posSpotLightTL)
               setup.addGodRays(posSpotLightTL)
+            }
+
+            // Add the sounds
+            let id = null
+            if (child.name === 'NeonLight1') {
+              id = 0
+              canPassSound = true
+            }
+            if (child.name === 'lightBoxSmall') {              
+              id = 1
+              canPassSound = true
+            }
+            if (canPassSound) {
+              self.loadSound(id, child)
+              canPassSound = false
             }
           })
 
@@ -388,6 +454,14 @@ export default class Setup {
     // Update renderer
     renderer.setSize(sizes.width, sizes.height)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  }
+
+  addDOMEvents() {
+    playButton.addEventListener('click', () => {
+      console.log('play')
+      this.listener.context.resume()
+      preloaderOverlay.classList.add('loaded')
+    }) 
   }
 }
 

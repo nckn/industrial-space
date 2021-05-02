@@ -17,3 +17,32 @@ body
     left: 0;
     outline: none;
 }
+
+.loader-overlay {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0,0,0,0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.loader-overlay .sound-button {
+  color: #fff;
+  cursor: pointer;
+  padding: 8px 16px;
+  background: #151515;
+  border-radius: 1px;
+  opacity: 0.85;
+  pointer-events: all;
+}
+.loader-overlay .sound-button:hover {
+  opacity: 1;
+}
+.loader-overlay.loaded {
+  opacity: 0;
+  visibility: hidden;
+}
