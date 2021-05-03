@@ -354,7 +354,7 @@ export default class Setup {
     movieScreen.scale.x /= 4
     movieScreen.scale.y /= 4
     scene.add(movieScreen);
-
+    console.log('setting up movie alright')
   }
 
   setupTweakGui() {
@@ -578,7 +578,7 @@ export default class Setup {
     var self = this
     playButton.addEventListener('click', () => {
       console.log('play')
-      this.listener.context.resume()
+      // self.listener.context.resume()
       preloaderOverlay.classList.add('loaded')
       // Add DOM events
       self.masterInit()
