@@ -184,8 +184,8 @@ export default class Setup {
     controls.enablePan = false
     // Set max polar angle
     controls.maxPolarAngle = (Math.PI * 0.5) * 0.99
-    controls.minDistance = 5
-    // controls.maxDistance = 50
+    controls.minDistance = 10
+    controls.maxDistance = 100
     /**
      * Renderer
      */
@@ -242,8 +242,8 @@ export default class Setup {
     gltfLoader.load(
       // 'portal.glb', // org. from Bruno Simon
       // 'landscape-playground.glb', // Mine from landscape-playground.blend
-      // 'industrial-space-1b-as-in-better-spline-res.glb', // Mine from landscape-playground.blend
-      'industrial-space-1.glb', // Mine from landscape-playground.blend
+      'industrial-space-1b-as-in-better-spline-res.glb', // Mine from landscape-playground.blend
+      // 'industrial-space-1.glb', // Mine from landscape-playground.blend
       (gltf) =>
       {
           // Bruno Simons 'portal.blend' model
