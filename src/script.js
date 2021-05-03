@@ -1,6 +1,7 @@
 import './style.css'
 import * as dat from 'dat.gui'
 import * as THREE from 'three'
+import { TweenMax, TimelineMax, Sine, Power3, Power4, Expo } from 'gsap'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
@@ -9,6 +10,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
 // volumetric / godrays shaders
+import { checkIfTouch } from '../static/js/helpers.js'
 import godRaysShaders from '../static/js/godrays-shaders.js'
 import portalVertexShader from './shaders/portal/vertex.glsl'
 import portalFragmentShader from './shaders/portal/fragment.glsl'
@@ -31,6 +33,9 @@ let videoImage = null
 let videoImageContext = null
 let videoTexture = null
 let movieMaterial = null
+
+// Animation
+const stdTime = 1.25
 
 // the geometry on which the movie will be displayed;
 // 		movie image will be scaled to fit these dimensions.
@@ -144,6 +149,13 @@ export default class Setup {
 
     this.debugObject = {}
 
+    this.INTERSECTED = ''
+    this.intS = null
+    this.intersectedObject = null
+    this.showAnnotation = true
+    this.meshes = []
+    this.dot = document.querySelector('.dot')
+
     // To store all sounds
     this.allSounds = []
     
@@ -162,6 +174,8 @@ export default class Setup {
     this.loadModel()
     // this.addGodRays()
     this.initPostprocessing()
+    // Tooltip animation
+    this.initTooltipAnim()
     // this.tick()
   }
 
@@ -264,6 +278,11 @@ export default class Setup {
             // console.log(child)
             console.log(child.name)
             child.material = bakedMaterial
+            // Add each child to the meshes array
+            this.meshes.push(child)
+            // Assign ID to mesh
+            child.userData.id = 0
+
             // If there are walls hide them for now. Until single side material so cam can look through each of them
             if (
               child.name === 'Wall1' || child.name === 'Wall2' || 
@@ -542,6 +561,7 @@ export default class Setup {
   }
 
   tick() {
+    var self = this
     const elapsedTime = clock.getElapsedTime()
 
     // Update materials
@@ -565,6 +585,10 @@ export default class Setup {
     // renderer.render(scene, camera)
     effectComposer.render()
   
+    if (self.intersectedObject) {
+      self.updateScreenPosition();
+    }
+
     // Call tick again on the next frame
     window.requestAnimationFrame( () => {
       this.tick()
@@ -604,13 +628,185 @@ export default class Setup {
         break
       }
     })
-    // preloaderOverlay.addEventListener('click', () => {
-    //   console.log('play')
-    //   this.listener.context.resume()
-    //   preloaderOverlay.classList.add('loaded')
-    // })
+
+    // Add event listener
+    // window.addEventListener('touchmove', self.eventHappens.bind(this), false);
+    window.addEventListener('mousemove', (e) => {
+      self.eventHappens(e)
+    }, false);
+    // window.addEventListener('touchstart', self.eventHappens, false);
+    // window.addEventListener('mousedown', self.eventHappens, false);
 
   }
+
+  // Function that returns a raycaster to use to find intersecting objects
+  // in a scene given screen pos and a camera, and a projector
+  getRayCasterFromScreenCoord (screenX, screenY, camera) {
+    var self = this
+    var raycaster = new THREE.Raycaster()
+    var mouse3D = new THREE.Vector3();
+    // Get 3D point form the client x y
+    mouse3D.x = (screenX / window.innerWidth) * 2 - 1;
+    mouse3D.y = -(screenY / window.innerHeight) * 2 + 1;
+    mouse3D.z = 0.5;
+    raycaster.setFromCamera(mouse3D, camera)
+    return raycaster
+  }
+
+  // Add event listener
+  eventHappens(e) {
+    var self = this
+    var mouseCoords = checkIfTouch(e)
+    if (self.gplane && self.mouseConstraint) {
+      var pos = self.projectOntoPlane(mouseCoords.x, mouseCoords.y, self.gplane, self.camera);
+      if (pos) {
+        var yDiff = self.mouseDownPos.y - pos.y
+        self.setClickMarker(pos.x - yDiff**2, pos.y, pos.z, self.scene);
+        self.moveJointToPoint(pos.x - yDiff**2, pos.y, pos.z);
+      }
+    }
+    // https://stackoverflow.com/questions/38314521/change-color-of-mesh-using-mouseover-in-three-js
+    // Get the picking ray from the point. https://jsfiddle.net/wilt/52ejur45/
+    // console.log(checkIfTouch(e))
+    // return
+    var mouseCoords = checkIfTouch(e)
+    var raycaster = self.getRayCasterFromScreenCoord(mouseCoords.x, mouseCoords.y, camera);
+    // Find the closest intersecting object
+    // Now, cast the ray all render objects in the scene to see if they collide. Take the closest one.
+    var intersects = raycaster.intersectObjects(self.meshes);
+    
+    // Intersected object
+    self.intS = self.INTERSECTED
+    // self.intersectedObject = self.INTERSECTED // Because intS follows specific hover rules
+
+    // This is where an intersection is detected
+    if ( intersects.length > 0 ) {
+      if ( self.intS != intersects[ 0 ].object ) {
+        // if ( self.intS ) {
+        //   self.intS.material.emissive.setHex( self.intS.currentHex );
+        // }
+        // If it is the plane then nevermind
+        if (intersects[ 0 ].object.name === 'Plane') {
+          self.intS = null;
+          if (self.showAnnotation) {
+            self.dot.classList.remove('visible')
+            self.playAnnotationAnim('backward')
+          }
+          return
+        }
+        self.intS = intersects[ 0 ].object;
+        // self.intS.currentHex = self.intS.material.emissive.getHex();
+        // self.intS.material.emissive.setHex( 0xffffff ); // Hover / highlight material
+        // Store the intersected id
+        // self.currentId = self.intS.userData.id
+        // self.currentObj = sounds[self.currentId]
+
+        if (self.showAnnotation) {
+          self.dot.classList.add('visible')
+          self.playAnnotationAnim('forward')
+        }
+        
+        // console.log('intS type: ', self.intS.userData.id)
+        // console.log('self.intS: ', self.intS.userData.id)
+        
+        // If type of event is mousemove do not play sound. Only on mousedown
+        // if (e.type === 'mousedown' || e.type === 'touchstart') {
+        //   if (sounds[self.currentId].isPlaying) {
+        //     self.stopMusic(self.currentId)
+        //   }
+        //   else {
+        //     self.startMusic(self.currentId)
+        //   }
+        // }
+      }
+
+      self.intersectedObject = self.intS
+      // console.log(self.intersectedObject)
+
+      // Change cursor
+      document.body.style.cursor = 'pointer'
+    }
+    else {
+      // if ( self.intS ) {
+      //   self.intS.material.emissive.setHex( self.intS.currentHex );
+      // }
+      self.intS = null;
+      // self.currentId = null;
+      // self.intersectedObject = null;
+
+      if (self.showAnnotation) {
+        // alert('should remove')
+        self.dot.classList.remove('visible')
+        self.playAnnotationAnim('backward')
+      }
+      
+      // Change cursor
+      document.body.style.cursor = 'default'
+    }
+    // self.highlightShape(closest)
+    self.meshes.forEach(element => {
+      // console.log(element.material)
+      // if (element != self.intS) {
+      //   element.material.emissive.setHex( 0x000000 );
+      // }
+      // console.log(element.currentHex)
+    });
+  }
+
+  initTooltipAnim () {
+    var self = this
+    self.tlTooltip = new TimelineMax()
+      .to('.info-line', stdTime, {height: '100%', ease: Power3.easeInOut}, 'start')
+      .staggerFrom('.anim', stdTime, {y: 20, autoAlpha: 0, ease: Power4.easeInOut}, 0.1, `start+=${stdTime/2}`)
+      .pause()
+  }
+
+  playAnnotationAnim (kind) {
+    var self = this      
+    if (kind === 'forward') {
+      self.tlTooltip.play()
+    }
+    else if (kind === 'backward') {
+      self.tlTooltip.reverse()
+    }      
+    // .staggerTo(`#${self.content.id} .anim-selfaware`, 2, {autoAlpha: 1, ease: Sine.easeOut}, 0.25)
+  }
+
+  updateScreenPosition() {
+    var self = this;
+
+    // console.log('update screen position')
+  
+    // const vector = new THREE.Vector3(0, 0, 0);
+    if (self.intersectedObject === null) {
+      return
+    }
+    var mesh = self.intersectedObject;
+    // var mesh = self.meshes[0];
+    const vector = mesh.position.clone();
+    const canvas = renderer.domElement;
+  
+    vector.project(camera);
+  
+    vector.x = Math.round((0.5 + vector.x / 2) * (canvas.width / window.devicePixelRatio));
+    vector.y = Math.round((0.5 - vector.y / 2) * (canvas.height / window.devicePixelRatio));
+  
+    if (self.showAnnotation) {
+      // console.log('update screen position')
+      // self.annotation.innerHTML = sounds[self.currentId].name;
+      // Place little dot
+  
+      var dotAttr = self.dot.getBoundingClientRect();
+  
+      self.dot.style.top = `${vector.y - (dotAttr.height / 2)}px`;
+      self.dot.style.left = `${vector.x - (dotAttr.width / 2)}px`;
+      
+      // self.annotation.style.top = `${vector.y - 84}px`;
+      // self.annotation.style.left = `${vector.x}px`;
+      // self.annotation.style.opacity = spriteBehindObject ? 0.25 : 1;
+    }
+  }
+
 }
 
 const setup = new Setup()
