@@ -86,7 +86,7 @@ const scene = new THREE.Scene()
 // scene.fog = new THREE.FogExp2( 0x000000, 0.1 );
 
 const sounds = [
-  {name: 'NeonLight1', path: 'neon-hypnotizing-506434.mp3', volume: 0.4},
+  {name: 'NeonLight1', path: 'neonlight-highpitch-119845.mp3', volume: 0.5},
   {name: 'boxLightSmall', path: 'hum-also-known-as-sun.mp3', volume: 0.05}
 ]
 let canPassSound = false
@@ -456,10 +456,10 @@ export default class Setup {
 
     // Unreal Bloom pass
     const unrealBloomPass = new UnrealBloomPass()
-    unrealBloomPass.enabled = false
+    // unrealBloomPass.enabled = false
     effectComposer.addPass(unrealBloomPass)
 
-    unrealBloomPass.strength = 0.3
+    unrealBloomPass.strength = 0.622
     unrealBloomPass.radius = 1
     unrealBloomPass.threshold = 0.6
 
@@ -596,11 +596,20 @@ export default class Setup {
       video.play();
       // self.masterInit()
     })
+    window.addEventListener( 'keydown', function ( event ) {
+      console.log('key code: ', event.keyCode)
+      switch ( event.keyCode ) {
+        case 71: // H for header and hide
+        dat.GUI.toggleHide()
+        break
+      }
+    })
     // preloaderOverlay.addEventListener('click', () => {
     //   console.log('play')
     //   this.listener.context.resume()
     //   preloaderOverlay.classList.add('loaded')
     // })
+
   }
 }
 
