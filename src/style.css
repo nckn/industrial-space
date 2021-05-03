@@ -30,6 +30,7 @@ body
   justify-content: center;
   pointer-events: none;
   transition: all 1.4s ease;
+  opacity: 1;
 }
 .loader-overlay .sound-button {
   color: #fff;

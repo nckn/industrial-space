@@ -18,15 +18,6 @@ import portalFragmentShader from './shaders/portal/fragment.glsl'
 // VIDEO //
 ///////////
 
-// create the video element
-let video = document.createElement( 'video' );
-// video.id = 'video';
-// video.type = ' video/ogg; codecs="theora, vorbis" ';
-video.src = "video/teenage-conflict-1960-xs-comp.mp4";
-video.load(); // must call after setting/changing source
-video.loop = true
-video.play();
-
 // alternative method -- 
 // create DIV in HTML:
 // <video id="myVideo" autoplay style="display:none">
@@ -35,20 +26,12 @@ video.play();
 // and set JS variable:
 // video = document.getElementById( 'myVideo' );
 
-let videoImage = document.createElement( 'canvas' );
-videoImage.width = 675;
-videoImage.height = 540;
+let video = null
+let videoImage = null
+let videoImageContext = null
+let videoTexture = null
+let movieMaterial = null
 
-let videoImageContext = videoImage.getContext( '2d' );
-// background color if no video present
-videoImageContext.fillStyle = '#000000';
-videoImageContext.fillRect( 0, 0, videoImage.width, videoImage.height );
-
-let videoTexture = new THREE.Texture( videoImage );
-videoTexture.minFilter = THREE.LinearFilter;
-videoTexture.magFilter = THREE.LinearFilter;
-
-var movieMaterial = new THREE.MeshBasicMaterial( { map: videoTexture, overdraw: true, side:THREE.DoubleSide } );
 // the geometry on which the movie will be displayed;
 // 		movie image will be scaled to fit these dimensions.
 
@@ -174,11 +157,12 @@ export default class Setup {
     this.makeShaderMaterial() // First lets make the shader material since dat gui needs it
     this.setupTweakGui() // Secondly lets setup tweak gui
     this.init()
+    // this.setupMovie()
     this.setupNecessaryAudio()
     this.loadModel()
     // this.addGodRays()
     this.initPostprocessing()
-    this.tick()
+    // this.tick()
   }
 
   init() {
@@ -189,9 +173,9 @@ export default class Setup {
      */
     // Base camera
     camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 0.1, 1000)
-    camera.position.x = 4
+    camera.position.x = -10
     camera.position.y = 2
-    camera.position.z = 4
+    camera.position.z = -10
     scene.add(camera)
 
     // Controls
@@ -335,25 +319,49 @@ export default class Setup {
 
           scene.add(gltf.scene)
 
-          this.setupOtherObjects()
+          this.setupMovie()
+          this.tick()
       }
     )
   }
 
-  setupOtherObjects() {
+  setupMovie() {
+    // create the video element
+    video = document.createElement( 'video' );
+    // video.id = 'video';
+    // video.type = ' video/ogg; codecs="theora, vorbis" ';
+    video.src = "video/teenage-conflict-1960-xs-comp.mp4";
+    video.load(); // must call after setting/changing source
+    video.loop = true
+    video.play();
+
+    videoImage = document.createElement( 'canvas' );
+    videoImage.width = 675;
+    videoImage.height = 540;
+
+    videoImageContext = videoImage.getContext( '2d' );
+    // background color if no video present
+    videoImageContext.fillStyle = '#000000';
+    videoImageContext.fillRect( 0, 0, videoImage.width, videoImage.height );
+
+    videoTexture = new THREE.Texture( videoImage );
+    videoTexture.minFilter = THREE.LinearFilter;
+    videoTexture.magFilter = THREE.LinearFilter;
+
+    movieMaterial = new THREE.MeshBasicMaterial( { map: videoTexture, overdraw: true, side:THREE.DoubleSide } );
     const videoSize = {w: 4, h: 4}
     var movieGeometry = new THREE.PlaneGeometry( videoSize.w, videoSize.h, 4, 4 );
     var movieScreen = new THREE.Mesh( movieGeometry, movieMaterial );
-    movieScreen.position.copy(this.lightBoxLarge.position)
-    movieScreen.position.y += movieScreen.scale.y / 2
-    movieScreen.position.x -= 0.2
-    movieScreen.position.z -= 0.1
-    // movieScreen.rotation.copy(this.lightBoxLarge.rotation * new THREE.Vector3(Math.PI / 2, Math.PI / 2, Math.PI / 2))
-    movieScreen.rotation.y = 1.1
-    // movieScreen.rotation.set(new THREE.Vector3( 0, Math.PI / 2, 0));
-    movieScreen.scale.copy(this.lightBoxLarge.scale)
-    movieScreen.scale.x /= 4
-    movieScreen.scale.y /= 4
+    // movieScreen.position.copy(this.lightBoxLarge.position)
+    // movieScreen.position.y += movieScreen.scale.y / 2
+    // movieScreen.position.x -= 0.2
+    // movieScreen.position.z -= 0.1
+    // // movieScreen.rotation.copy(this.lightBoxLarge.rotation * new THREE.Vector3(Math.PI / 2, Math.PI / 2, Math.PI / 2))
+    // movieScreen.rotation.y = 1.1
+    // // movieScreen.rotation.set(new THREE.Vector3( 0, Math.PI / 2, 0));
+    // movieScreen.scale.copy(this.lightBoxLarge.scale)
+    // movieScreen.scale.x /= 4
+    // movieScreen.scale.y /= 4
     scene.add(movieScreen);
     console.log('setting up movie alright')
   }
@@ -541,14 +549,15 @@ export default class Setup {
     portalLightMaterial.uniforms.uTime.value = elapsedTime
 
     // Video material
-    videoImageContext.drawImage( video, 0, 0 );
-    videoTexture.needsUpdate = true;
-    // if ( video.readyState === video.HAVE_ENOUGH_DATA ) {
-    //   videoImageContext.drawImage( video, 0, 0 );
-    //   if ( videoTexture ) 
-    //     videoTexture.needsUpdate = true;
-    // }
-    console.log()
+    // videoImageContext.drawImage( video, 0, 0 );
+    // videoTexture.needsUpdate = true;
+    if ( video.readyState === video.HAVE_ENOUGH_DATA ) {
+      videoImageContext.drawImage( video, 0, 0 );
+      if ( videoTexture ) {
+        videoTexture.needsUpdate = true;
+      }
+    }
+    // console.log('rendering')
 
     // Update controls
     controls.update()
