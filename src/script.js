@@ -540,12 +540,15 @@ export default class Setup {
     portalLightMaterial.uniforms.uTime.value = elapsedTime
 
     // Video material
-    if ( video.readyState === video.HAVE_ENOUGH_DATA ) {
-      videoImageContext.drawImage( video, 0, 0 );
-      if ( videoTexture ) 
-        videoTexture.needsUpdate = true;
-    }
-  
+    videoImageContext.drawImage( video, 0, 0 );
+    videoTexture.needsUpdate = true;
+    // if ( video.readyState === video.HAVE_ENOUGH_DATA ) {
+    //   videoImageContext.drawImage( video, 0, 0 );
+    //   if ( videoTexture ) 
+    //     videoTexture.needsUpdate = true;
+    // }
+    console.log()
+
     // Update controls
     controls.update()
   
