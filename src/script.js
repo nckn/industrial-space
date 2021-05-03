@@ -163,10 +163,11 @@ export default class Setup {
 
     // To store all sounds
     this.allSounds = []
+    
+    this.masterInit()
 
     // Add DOM events
     this.addDOMEvents()
-    // this.masterInit()
   }
 
   masterInit() {
@@ -581,10 +582,10 @@ export default class Setup {
     var self = this
     playButton.addEventListener('click', () => {
       console.log('play')
-      // self.listener.context.resume()
+      self.listener.context.resume()
       preloaderOverlay.classList.add('loaded')
       // Add DOM events
-      self.masterInit()
+      // self.masterInit()
     })
     // preloaderOverlay.addEventListener('click', () => {
     //   console.log('play')
