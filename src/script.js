@@ -795,15 +795,10 @@ export default class Setup {
       // console.log('update screen position')
       // self.annotation.innerHTML = sounds[self.currentId].name;
       // Place little dot
-  
       var dotAttr = self.dot.getBoundingClientRect();
   
       self.dot.style.top = `${vector.y - (dotAttr.height / 2)}px`;
       self.dot.style.left = `${vector.x - (dotAttr.width / 2)}px`;
-      
-      // self.annotation.style.top = `${vector.y - 84}px`;
-      // self.annotation.style.left = `${vector.x}px`;
-      // self.annotation.style.opacity = spriteBehindObject ? 0.25 : 1;
     }
   }
 
