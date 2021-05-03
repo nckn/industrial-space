@@ -333,7 +333,6 @@ export default class Setup {
     video.src = "video/teenage-conflict-1960-xs-comp.mp4";
     video.load(); // must call after setting/changing source
     video.loop = true
-    video.play();
 
     videoImage = document.createElement( 'canvas' );
     videoImage.width = 675;
@@ -352,16 +351,16 @@ export default class Setup {
     const videoSize = {w: 4, h: 4}
     var movieGeometry = new THREE.PlaneGeometry( videoSize.w, videoSize.h, 4, 4 );
     var movieScreen = new THREE.Mesh( movieGeometry, movieMaterial );
-    // movieScreen.position.copy(this.lightBoxLarge.position)
-    // movieScreen.position.y += movieScreen.scale.y / 2
-    // movieScreen.position.x -= 0.2
-    // movieScreen.position.z -= 0.1
-    // // movieScreen.rotation.copy(this.lightBoxLarge.rotation * new THREE.Vector3(Math.PI / 2, Math.PI / 2, Math.PI / 2))
-    // movieScreen.rotation.y = 1.1
-    // // movieScreen.rotation.set(new THREE.Vector3( 0, Math.PI / 2, 0));
-    // movieScreen.scale.copy(this.lightBoxLarge.scale)
-    // movieScreen.scale.x /= 4
-    // movieScreen.scale.y /= 4
+    movieScreen.position.copy(this.lightBoxLarge.position)
+    movieScreen.position.y += movieScreen.scale.y / 2
+    movieScreen.position.x -= 0.4
+    movieScreen.position.z -= 0.2
+    // movieScreen.rotation.copy(this.lightBoxLarge.rotation * new THREE.Vector3(Math.PI / 2, Math.PI / 2, Math.PI / 2))
+    movieScreen.rotation.y = 1.1
+    // movieScreen.rotation.set(new THREE.Vector3( 0, Math.PI / 2, 0));
+    movieScreen.scale.copy(this.lightBoxLarge.scale)
+    movieScreen.scale.x /= 4
+    movieScreen.scale.y /= 4
     scene.add(movieScreen);
     console.log('setting up movie alright')
   }
@@ -587,13 +586,14 @@ export default class Setup {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   }
 
+  // Add DOM events
   addDOMEvents() {
     var self = this
     playButton.addEventListener('click', () => {
       console.log('play')
       self.listener.context.resume()
       preloaderOverlay.classList.add('loaded')
-      // Add DOM events
+      video.play();
       // self.masterInit()
     })
     // preloaderOverlay.addEventListener('click', () => {
