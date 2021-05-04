@@ -256,7 +256,7 @@ export default class Setup {
     gltfLoader.load(
       // 'portal.glb', // org. from Bruno Simon
       // 'landscape-playground.glb', // Mine from landscape-playground.blend
-      'industrial-space-1b-as-in-better-spline-res.glb', // Mine from landscape-playground.blend
+      'models/industrial-space-1c.glb', // Mine from landscape-playground.blend
       // 'industrial-space-1.glb', // Mine from landscape-playground.blend
       (gltf) =>
       {
