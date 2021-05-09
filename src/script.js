@@ -10,10 +10,11 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
 // volumetric / godrays shaders
-import { checkIfTouch } from '../static/js/helpers.js'
+import { checkIfTouch, map } from '../static/js/helpers.js'
 import godRaysShaders from '../static/js/godrays-shaders.js'
 import portalVertexShader from './shaders/portal/vertex.glsl'
 import portalFragmentShader from './shaders/portal/fragment.glsl'
+import { DoubleSide } from 'three'
 
 // import videoTexture from '../static/js/video-texture.js'
 ///////////
@@ -33,6 +34,7 @@ let videoImage = null
 let videoImageContext = null
 let videoTexture = null
 let movieMaterial = null
+let neonLightOne = null
 
 // Animation
 const stdTime = 1.25
@@ -128,7 +130,16 @@ const bakedMaterial = new THREE.MeshBasicMaterial({ map: bakedTexture })
 // Portal light material
 let portalLightMaterial = null
 const boxLightSmallMaterial = new THREE.MeshBasicMaterial({ color: 0xffc0cb })
-const boxLightLargeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff })
+// const boxLightLargeMaterial = new THREE.MeshBasicMaterial({ 
+//   color: 0xffffff
+// })
+let boxLightLargeMaterial = new THREE.MeshStandardMaterial({
+  color: 0x333333,
+  roughness: 0,
+  metalness: 0,
+  emissive: 0xffffff,
+  flatShading: true
+})
 
 // Pole light material
 const poleLightMaterial = new THREE.MeshBasicMaterial({ color: 0xffffe5 })
@@ -244,7 +255,7 @@ export default class Setup {
     //
     // store sound and add to global array
     const analyser = new THREE.AudioAnalyser( sound, 32 );
-    this.allSounds.push( {snd: sound, analyser: analyser} )
+    this.allSounds.push( {snd: sound, analyser: analyser, parent: parent} )
     // console.log()
   }
   
@@ -320,7 +331,7 @@ export default class Setup {
           const boxLightSmall = gltf.scene.children.find(child => child.name === 'boxLightSmall')
           const boxLightLarge = gltf.scene.children.find(child => child.name === 'boxLightLarge')
           const lightBoxLarge = gltf.scene.children.find(child => child.name === 'lightBoxLarge')
-          const neonLightOne = gltf.scene.children.find(child => child.name === 'NeonLight1')
+          neonLightOne = gltf.scene.children.find(child => child.name === 'NeonLight1')
           // const spotLightTL = gltf.scene.children.find(child => child.name === 'SpotLightTL')
 
           boxLightSmall.material = boxLightSmallMaterial
@@ -566,6 +577,27 @@ export default class Setup {
 
     // Update materials
     portalLightMaterial.uniforms.uTime.value = elapsedTime
+
+    // Set intensity based on sound volume - start
+    self.allSounds.forEach( (sound, index) => {
+      // console.log(sound.parent)
+      if (sound.parent.name === 'NeonLight1') {
+        var freq = sound.analyser.getFrequencyData()[0]
+        var scaledVal = map(freq, 0, 256, 0.0, 1.0)
+        // console.log(scaledVal)
+        // Set boxLightMaterial emissive intensity
+        neonLightOne.material.emissiveIntensity = scaledVal;
+      }
+    });
+    // var freq = sounds[index].analyser.getFrequencyData()[0]
+    // var scaledVal = map(freq, 0, 256, 1, scaleVal)
+    // TweenMax.to(element.shape.scale, self.easeTime, {
+    //   x: scaledVal,
+    //   y: scaledVal,
+    //   z: scaledVal,
+    //   ease: Sine.easeOut
+    // })
+    // Set intensity based on sound volume - end
 
     // Video material
     // videoImageContext.drawImage( video, 0, 0 );
