@@ -1,9 +1,16 @@
+import { Clock } from 'three'
 import { TweenMax, Circ } from 'gsap'
 
 export default class {
   constructor() {
     // Create variable for setTimeout
     this.delay = null;
+
+    this.shouldScale = false;
+    this.clock = null;
+    this.reqAnim = null;
+    this.elapsedTime = 0;
+    this.oldTime = 0;
     
     // Set number of milliseconds for longpress
     this.longpress = 1300;
@@ -14,8 +21,14 @@ export default class {
     // this.listItem;
     console.log('setting up timer')
 
+    // this.makeTimer()
     this.setupTimer()
   }
+
+  // makeTimer() {
+  //   var _this = this;
+  //   _this.clock = new Clock()
+  // }
 
   setupTimer() {
     var _this = this;
@@ -29,8 +42,10 @@ export default class {
         console.log('is pass the threshold')
         // _this.scaler.style.transformOrigin = '50% 50%'
         // _this.scaler.style.transform = `scale(${2})`
-        TweenMax.to(_this.scaler, 10, {css: {scale: 5}, ease: Circ.easeIn});
-        // TweenMax.to(_this.scaler, 20, {css: {scale: 5}});
+        // TweenMax.to(_this.scaler, 10, {css: {scale: 1 + _this.elapsedTime}, ease: Circ.easeIn});
+        // TweenMax.set(_this.scaler, {css: {scale: 1 + _this.elapsedTime}, ease: Circ.easeIn});
+        _this.clock = new Clock()
+        _this.tick()
       }    
     }, true);
     
@@ -39,8 +54,24 @@ export default class {
       clearTimeout(_this.delay);
       // Reset time
       TweenMax.set(_this.scaler, {css: {scale: 1}});
+      // Cancel the animation
+      cancelAnimationFrame( _this.reqAnim )
+      _this.oldTime = _this.elapsedTime
+      _this.clock = null
     });
     
+  }
+
+  tick() {
+    var _this = this
+    // this.elapsedTime = this.clock.getElapsedTime() - this.oldTime
+    this.elapsedTime = this.clock.getElapsedTime()
+    // console.log('is scaling: ', this.elapsedTime)
+    // Scale the dot
+    TweenMax.to(_this.scaler, 0.01, {css: {scale: 1 + _this.elapsedTime}, ease: Circ.easeIn});
+    this.reqAnim = requestAnimationFrame( () => {
+      this.tick()
+    })
   }
 
 }
