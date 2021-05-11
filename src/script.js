@@ -19,6 +19,9 @@ import portalVertexShader from './shaders/portal/vertex.glsl'
 import portalFragmentShader from './shaders/portal/fragment.glsl'
 import { DoubleSide } from 'three'
 
+// require('../static/js/splitTextPlugin.js')
+import * as SplitText from '../static/js/splitTextPlugin.js'
+
 // import videoTexture from '../static/js/video-texture.js'
 ///////////
 // VIDEO //
@@ -799,8 +802,14 @@ export default class Setup {
 
   initTooltipAnim () {
     var self = this
+    console.log('SplitText')
+    console.log(SplitText)
+    // return
+    // let a = new SplitText("anim-type-axis-y", { type: "lines", linesClass: "lineChild" });
+    // let b = new SplitText("anim-type-axis-y", { type: "lines", linesClass: "lineParent" });
     self.tlTooltip = new TimelineMax()
       .to('.info-line', stdTime, {height: '100%', ease: Power3.easeInOut}, 'start')
+      // .staggerFrom(".lineChild", 0.75, {y:50}, 0.25)
       .staggerFrom('.anim', stdTime, {y: 20, autoAlpha: 0, ease: Power4.easeInOut}, 0.1, `start+=${stdTime/2}`)
       .pause()
   }

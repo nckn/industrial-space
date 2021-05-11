@@ -53,11 +53,14 @@ export default class {
       // On mouse up, we know it is no longer a longpress
       clearTimeout(_this.delay);
       // Reset time
-      TweenMax.set(_this.scaler, {css: {scale: 1}});
       // Cancel the animation
       cancelAnimationFrame( _this.reqAnim )
       _this.oldTime = _this.elapsedTime
       _this.clock = null
+      // Scale back to 1
+      setTimeout(() => {
+        TweenMax.set(_this.scaler, {css: {scale: 1}});
+      }, 1)
     });
     
   }
@@ -68,7 +71,7 @@ export default class {
     this.elapsedTime = this.clock.getElapsedTime()
     // console.log('is scaling: ', this.elapsedTime)
     // Scale the dot
-    TweenMax.to(_this.scaler, 0.01, {css: {scale: 1 + _this.elapsedTime}, ease: Circ.easeIn});
+    TweenMax.to(_this.scaler, 0.01, {css: {scale: (1 + (_this.elapsedTime * 2) )}, ease: Circ.easeIn});
     this.reqAnim = requestAnimationFrame( () => {
       this.tick()
     })
