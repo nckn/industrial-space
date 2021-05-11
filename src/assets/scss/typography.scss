@@ -1,0 +1,18 @@
+// $font_path: '../../../static/fonts/';
+$font_path: '../../fonts/';
+
+// Base
+@font-face {
+  font-family: "SuisseBPIntlRegular";
+  src: url($font_path + 'SuisseBPIntl-Regular.otf');
+  // src: url($font_path + 'SuisseBPIntl-Regular.eot?#iefix') format('embedded-opentype'),
+  //      url($font_path + 'SuisseBPIntl-Regular.woff2') format('woff2'),
+  //      url($font_path + 'SuisseBPIntl-Regular.woff') format('woff'),
+  //      url($font_path + 'SuisseBPIntl-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: 0.35;
+}

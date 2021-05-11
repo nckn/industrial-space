@@ -1,4 +1,4 @@
-import './style.css'
+import './assets/scss/main.scss'
 import * as dat from 'dat.gui'
 import * as THREE from 'three'
 import { TweenMax, TimelineMax, Sine, Power3, Power4, Expo } from 'gsap'
@@ -9,8 +9,11 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
-// volumetric / godrays shaders
+// Misc helper functions
 import { checkIfTouch, map } from '../static/js/helpers.js'
+// Longpress
+import LongPress from '../static/js/LongPress.js'
+// volumetric / godrays shaders
 import godRaysShaders from '../static/js/godrays-shaders.js'
 import portalVertexShader from './shaders/portal/vertex.glsl'
 import portalFragmentShader from './shaders/portal/fragment.glsl'
@@ -51,6 +54,8 @@ const stdTime = 1.25
 
 // Audio example
 // https://github.com/mrdoob/three.js/blob/master/examples/webaudio_sandbox.html
+
+let longPrss = new LongPress();
 
 /**
  * Sizes
