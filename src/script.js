@@ -55,8 +55,6 @@ const stdTime = 1.25
 // Audio example
 // https://github.com/mrdoob/three.js/blob/master/examples/webaudio_sandbox.html
 
-let longPrss = new LongPress();
-
 /**
  * Sizes
  */
@@ -170,7 +168,7 @@ export default class Setup {
     this.intersectedObject = null
     this.showAnnotation = true
     this.meshes = []
-    this.dot = document.querySelector('.dot')
+    this.popover = document.querySelector('.popover')
 
     // To store all sounds
     this.allSounds = []
@@ -192,6 +190,8 @@ export default class Setup {
     this.initPostprocessing()
     // Tooltip animation
     this.initTooltipAnim()
+    // Setup long press logic
+    this.setupLongPressLogic()
     // this.tick()
   }
 
@@ -231,6 +231,13 @@ export default class Setup {
     clock = new THREE.Clock()
 
     window.addEventListener('resize', this.onResize)  
+  }
+
+  setupLongPressLogic() {
+    var self = this
+    let longPrss = new LongPress();
+    // TODO: Look into webgl-mouse-hover or something, to see
+    // how to handle callbacks and return functions
   }
 
   setupNecessaryAudio() {
@@ -726,7 +733,7 @@ export default class Setup {
         if (intersects[ 0 ].object.name === 'Plane') {
           self.intS = null;
           if (self.showAnnotation) {
-            self.dot.classList.remove('visible')
+            self.popover.classList.remove('visible')
             self.playAnnotationAnim('backward')
           }
           return
@@ -739,7 +746,7 @@ export default class Setup {
         // self.currentObj = sounds[self.currentId]
 
         if (self.showAnnotation) {
-          self.dot.classList.add('visible')
+          self.popover.classList.add('visible')
           self.playAnnotationAnim('forward')
         }
         
@@ -773,7 +780,7 @@ export default class Setup {
 
       if (self.showAnnotation) {
         // alert('should remove')
-        self.dot.classList.remove('visible')
+        self.popover.classList.remove('visible')
         self.playAnnotationAnim('backward')
       }
       
@@ -831,11 +838,11 @@ export default class Setup {
     if (self.showAnnotation) {
       // console.log('update screen position')
       // self.annotation.innerHTML = sounds[self.currentId].name;
-      // Place little dot
-      var dotAttr = self.dot.getBoundingClientRect();
+      // Place little popover
+      var popoverAttr = self.popover.getBoundingClientRect();
   
-      self.dot.style.top = `${vector.y - (dotAttr.height / 2)}px`;
-      self.dot.style.left = `${vector.x - (dotAttr.width / 2)}px`;
+      self.popover.style.top = `${vector.y - (popoverAttr.height / 2)}px`;
+      self.popover.style.left = `${vector.x - (popoverAttr.width / 2)}px`;
     }
   }
 
