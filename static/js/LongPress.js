@@ -71,7 +71,7 @@ export default class {
     this.elapsedTime = this.clock.getElapsedTime()
     // console.log('is scaling: ', this.elapsedTime)
     // Scale the dot
-    TweenMax.to(_this.scaler, 0.01, {css: {scale: (1 + (_this.elapsedTime * 2) )}, ease: Circ.easeIn});
+    TweenMax.to(_this.scaler, 0.01, {css: {scale: (1 + (Math.exp(_this.elapsedTime)) )}, ease: Circ.easeIn});
     this.reqAnim = requestAnimationFrame( () => {
       this.tick()
     })
