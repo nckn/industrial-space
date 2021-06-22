@@ -1,3 +1,5 @@
+import SimplexNoise from 'simplex-noise'
+
 const radians = (degrees) => {
   return degrees * Math.PI / 180;
 }
@@ -29,10 +31,50 @@ const checkIfTouch = (e) => {
   return { x: thisX, y: thisY }
 }
 
+const createPoints = () => {
+  const points = [];
+  // how many points do we need
+  const numPoints = 6;
+  // used to equally space each point around the circle
+  const angleStep = (Math.PI * 2) / numPoints;
+  // the radius of the circle
+  const rad = 75;
+
+  for (let i = 1; i <= numPoints; i++) {
+    // x & y coordinates of the current point
+    const theta = i * angleStep;
+
+    const x = 100 + Math.cos(theta) * rad;
+    const y = 100 + Math.sin(theta) * rad;
+
+    // store the point's position
+    points.push({
+      x: x,
+      y: y,
+      // we need to keep a reference to the point's original point for when we modulate the values later
+      originX: x,
+      originY: y,
+      // more on this in a moment!
+      noiseOffsetX: Math.random() * 1000,
+      noiseOffsetY: Math.random() * 1000
+    });
+  }
+
+  return points;
+}
+
+// Noise
+const simplex = new SimplexNoise();
+const noise = (x, y) => {
+  return simplex.noise2D(x, y);
+}
+
 export { 
   radians,
   distance,
   map,
   generateRandomNumber,
-  checkIfTouch
+  checkIfTouch,
+  createPoints,
+  noise
 };

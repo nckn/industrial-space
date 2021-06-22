@@ -151,3 +151,19 @@ $popover-h: 124px;
 .lineParent {
   overflow: hidden;
 }
+
+
+// Noise
+:root {
+  --startColor: hsl(0, 100%, 75%);
+  --stopColor: hsl(0, 100%, 75%);
+}
+
+svg {
+  width: 90vmin;
+  height: 90vmin;
+}
+
+path {
+  cursor: pointer;
+}

@@ -7,10 +7,15 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
+// import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
 // Misc helper functions
-import { checkIfTouch, map } from '../static/js/helpers.js'
+import {
+  checkIfTouch,
+  map,
+  createPoints,
+  noise
+} from '../static/js/helpers.js'
 // Longpress
 import LongPress from '../static/js/LongPress.js'
 // volumetric / godrays shaders
@@ -23,6 +28,18 @@ import SimplexNoise from 'simplex-noise'
 
 // require('../static/js/splitTextPlugin.js')
 import * as SplitText from '../static/js/splitTextPlugin.js'
+
+// Noise related - start
+import { spline } from '@georgedoescode/spline'
+// our <path> element
+const path = document.querySelector("#circlePath")
+// used to set our custom property values
+const root = document.documentElement
+let hueNoiseOffset = 0
+let noiseStep = 0.005
+const points = createPoints();
+// Noise related - end
+
 
 // import videoTexture from '../static/js/video-texture.js'
 ///////////
@@ -590,6 +607,39 @@ export default class Setup {
     self.allSpots.push( {coneMesh: coneMesh, spotLight: spotLight} )
   }
 
+  animateNoise() {
+    path.setAttribute("d", spline(points, 1, true));
+
+    // for every point...
+    for (let i = 0; i < points.length; i++) {
+      const point = points[i]
+
+      // return a pseudo random value between -1 / 1 based on this point's current x, y positions in "time"
+      const nX = noise(point.noiseOffsetX, point.noiseOffsetX)
+      const nY = noise(point.noiseOffsetY, point.noiseOffsetY)
+      // map this noise value to a new value, somewhere between it's original location -20 and it's original location + 20
+      const x = map(nX, -1, 1, point.originX - 20, point.originX + 20)
+      const y = map(nY, -1, 1, point.originY - 20, point.originY + 20)
+
+      // update the point's current coordinates
+      point.x = x
+      point.y = y
+
+      // progress the point's x, y values through "time"
+      point.noiseOffsetX += noiseStep
+      point.noiseOffsetY += noiseStep
+    }
+
+    const hueNoise = noise(hueNoiseOffset, hueNoiseOffset)
+    const hue = map(hueNoise, -1, 1, 0, 360)
+
+    root.style.setProperty("--startColor", `hsl(${hue}, 100%, 75%)`)
+    root.style.setProperty("--stopColor", `hsl(${hue + 60}, 100%, 75%)`)
+    document.body.style.background = `hsl(${hue + 60}, 75%, 5%)`
+
+    hueNoiseOffset += noiseStep / 6
+  }
+
   tickTock() {
     var self = this
     const elapsedTime = clock.getElapsedTime()
@@ -637,6 +687,9 @@ export default class Setup {
 
     // Update controls
     controls.update()
+    
+    // Animate noise
+    this.animateNoise()
   
     // Render
     // renderer.render(scene, camera)
