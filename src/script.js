@@ -19,6 +19,8 @@ import portalVertexShader from './shaders/portal/vertex.glsl'
 import portalFragmentShader from './shaders/portal/fragment.glsl'
 import { DoubleSide } from 'three'
 
+import SimplexNoise from 'simplex-noise'
+
 // require('../static/js/splitTextPlugin.js')
 import * as SplitText from '../static/js/splitTextPlugin.js'
 
@@ -177,6 +179,8 @@ export default class Setup {
     this.allSounds = []
     
     this.masterInit()
+
+    this.simplex = new SimplexNoise()
 
     // Add DOM events
     this.addDOMEvents()
@@ -365,7 +369,7 @@ export default class Setup {
           scene.add(gltf.scene)
 
           this.setupMovie()
-          this.tick()
+          this.tickTock()
       }
     )
   }
@@ -586,9 +590,15 @@ export default class Setup {
     self.allSpots.push( {coneMesh: coneMesh, spotLight: spotLight} )
   }
 
-  tick() {
+  tickTock() {
     var self = this
     const elapsedTime = clock.getElapsedTime()
+
+    // let noise = self.simplex.noise3D(x / 160, x / 160, self.tT/mouseY) * fx1 + fx2;
+    // TODO Implenting noise and need to use it for something
+    let noise = self.simplex.noise2D(elapsedTime, 1)
+    // console.log('noise')
+    // console.log(noise)
 
     // Update materials
     portalLightMaterial.uniforms.uTime.value = elapsedTime
@@ -638,7 +648,7 @@ export default class Setup {
 
     // Call tick again on the next frame
     window.requestAnimationFrame( () => {
-      this.tick()
+      this.tickTock()
     } )
   }
   

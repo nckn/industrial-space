@@ -95,7 +95,7 @@ $popover-h: 124px;
     text-align: left;
     position: relative;
     h3, p {
-      margin-left: calc(#{$popover-w} / 2);
+      //
     }
     h3 {
       font-size: 32px;
@@ -116,6 +116,23 @@ $popover-h: 124px;
       transform: rotate(180deg);
     }
   }
+}
+
+.annotation__textwrapper {
+  margin-left: calc(#{$popover-w} / 2);
+  width: 230px;
+}
+
+.annotation__title,
+.annotation__subtitle {
+  overflow-x: visible;
+  overflow-y: hidden;
+  height: 2rem;
+  width: auto;
+}
+
+.annotation__subtitle {
+  margin-top: 12px;
 }
 
 .visible {
