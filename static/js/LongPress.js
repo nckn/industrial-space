@@ -16,6 +16,7 @@ export default class {
     this.longpress = 1300;
     
     this.scaler = document.querySelector('.dot');
+    this.scalerNoise = document.querySelector('#theSvgNoiseShape');
     this.eventTaker = document.querySelector('.webgl');
     // this.listItems = document.getElementsByClassName('list-item');
     // this.listItem;
@@ -60,6 +61,7 @@ export default class {
       // Scale back to 1
       setTimeout(() => {
         TweenMax.set(_this.scaler, {css: {scale: 1}});
+        TweenMax.set(_this.scalerNoise, {css: {scale: 1}});
       }, 1)
     });
     
@@ -72,6 +74,7 @@ export default class {
     // console.log('is scaling: ', this.elapsedTime)
     // Scale the dot
     TweenMax.to(_this.scaler, 0.01, {css: {scale: (1 + (Math.exp(_this.elapsedTime)) )}, ease: Circ.easeIn});
+    TweenMax.to(_this.scalerNoise, 0.01, {css: {scale: (1 + (Math.exp(_this.elapsedTime)) )}, ease: Circ.easeIn});
     this.reqAnim = requestAnimationFrame( () => {
       this.tick()
     })

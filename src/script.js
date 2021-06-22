@@ -24,7 +24,7 @@ import portalVertexShader from './shaders/portal/vertex.glsl'
 import portalFragmentShader from './shaders/portal/fragment.glsl'
 import { DoubleSide } from 'three'
 
-import SimplexNoise from 'simplex-noise'
+// import SimplexNoise from 'simplex-noise'
 
 // require('../static/js/splitTextPlugin.js')
 import * as SplitText from '../static/js/splitTextPlugin.js'
@@ -37,7 +37,7 @@ const path = document.querySelector("#circlePath")
 const root = document.documentElement
 let hueNoiseOffset = 0
 let noiseStep = 0.005
-const points = createPoints();
+const points = createPoints()
 // Noise related - end
 
 
@@ -197,7 +197,7 @@ export default class Setup {
     
     this.masterInit()
 
-    this.simplex = new SimplexNoise()
+    // this.simplex = new SimplexNoise()
 
     // Add DOM events
     this.addDOMEvents()
@@ -646,7 +646,7 @@ export default class Setup {
 
     // let noise = self.simplex.noise3D(x / 160, x / 160, self.tT/mouseY) * fx1 + fx2;
     // TODO Implenting noise and need to use it for something
-    let noise = self.simplex.noise2D(elapsedTime, 1)
+    // let noise = self.simplex.noise2D(elapsedTime, 1)
     // console.log('noise')
     // console.log(noise)
 
