@@ -60,7 +60,7 @@ export default class {
       _this.clock = null
       // Scale back to 1
       setTimeout(() => {
-        TweenMax.set(_this.scaler, {css: {scale: 1}});
+        // TweenMax.set(_this.scaler, {css: {scale: 1}});
         TweenMax.set(_this.scalerNoise, {css: {scale: 1}});
       }, 1)
     });
@@ -73,7 +73,7 @@ export default class {
     this.elapsedTime = this.clock.getElapsedTime()
     // console.log('is scaling: ', this.elapsedTime)
     // Scale the dot
-    TweenMax.to(_this.scaler, 0.01, {css: {scale: (1 + (Math.exp(_this.elapsedTime)) )}, ease: Circ.easeIn});
+    // TweenMax.to(_this.scaler, 0.01, {css: {scale: (1 + (Math.exp(_this.elapsedTime)) )}, ease: Circ.easeIn});
     TweenMax.to(_this.scalerNoise, 0.01, {css: {scale: (1 + (Math.exp(_this.elapsedTime)) )}, ease: Circ.easeIn});
     this.reqAnim = requestAnimationFrame( () => {
       this.tick()
