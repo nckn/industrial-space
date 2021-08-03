@@ -97,12 +97,6 @@ $popover-h: 124px;
     h3, p {
       //
     }
-    h3 {
-      font-size: 32px;
-    }
-    p {
-      font-size: 24px;
-    }
     .info-line {
       position: absolute;
       // margin-left: -calc(24px / 1);
@@ -133,6 +127,10 @@ $popover-h: 124px;
 
 .annotation__subtitle {
   margin-top: 12px;
+}
+
+.annotation__paragraph__text {
+  font-size: 16px;
 }
 
 .visible {

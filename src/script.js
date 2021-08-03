@@ -740,11 +740,15 @@ export default class Setup {
     })
 
     // Add event listener
-    // window.addEventListener('touchmove', self.eventHappens.bind(this), false);
+    window.addEventListener('touchmove', (e) => {
+      self.eventHappens(e)
+    }, false);
+    window.addEventListener('touchstart', (e) => {
+      self.eventHappens(e)
+    }, false);
     window.addEventListener('mousemove', (e) => {
       self.eventHappens(e)
     }, false);
-    // window.addEventListener('touchstart', self.eventHappens, false);
     // window.addEventListener('mousedown', self.eventHappens, false);
 
   }
