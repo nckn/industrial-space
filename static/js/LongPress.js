@@ -22,6 +22,8 @@ export default class {
     // this.listItem;
     console.log('setting up timer')
 
+    this.multiplier = 1.1
+
     // this.makeTimer()
     this.setupTimer()
   }
@@ -63,6 +65,7 @@ export default class {
         // TweenMax.set(_this.scaler, {css: {scale: 1}});
         TweenMax.set(_this.scalerNoise, {css: {scale: 1}});
       }, 1)
+      _this.multiplier = 1
     });
     
   }
@@ -71,10 +74,11 @@ export default class {
     var _this = this
     // this.elapsedTime = this.clock.getElapsedTime() - this.oldTime
     this.elapsedTime = this.clock.getElapsedTime()
+    this.multiplier += 0.1
     // console.log('is scaling: ', this.elapsedTime)
     // Scale the dot
     // TweenMax.to(_this.scaler, 0.01, {css: {scale: (1 + (Math.exp(_this.elapsedTime)) )}, ease: Circ.easeIn});
-    TweenMax.to(_this.scalerNoise, 0.01, {css: {scale: (1 + (Math.exp(_this.elapsedTime)) )}, ease: Circ.easeIn});
+    TweenMax.to(_this.scalerNoise, 0.01, {css: {scale: (1 + (Math.exp(_this.elapsedTime) * _this.multiplier) )}, ease: Circ.easeIn});
     this.reqAnim = requestAnimationFrame( () => {
       this.tick()
     })
