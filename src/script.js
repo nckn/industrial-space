@@ -878,6 +878,8 @@ export default class Setup {
       .to('.info-line', stdTime, {height: '100%', ease: Power3.easeInOut}, 'start')
       // .staggerFrom(".lineChild", 0.75, {y:50}, 0.25)
       .staggerFrom('.anim', stdTime, {y: 20, autoAlpha: 0, ease: Power4.easeInOut}, 0.1, `start+=${stdTime/2}`)
+      .from('.anim--nav-tl', stdTime, {y: -120, autoAlpha: 0, ease: Power4.easeInOut}, 0.1, `start+=${stdTime}`)
+      .from('.anim--nav-tr', stdTime, {x: 120, autoAlpha: 0, ease: Power4.easeInOut}, 0.1)
       .pause()
   }
 

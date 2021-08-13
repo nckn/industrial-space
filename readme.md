@@ -22,3 +22,10 @@ TODO
 
 Video clip from Old TV time
 https://www.youtube.com/channel/UCUj8lkSnX-BnTXBYj8kwvsQ
+
+
+
+- - -  
+Info
+#### Where is the gooey blob anim time set?
+### LongPress.js/ in tick() method

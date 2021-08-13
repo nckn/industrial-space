@@ -177,3 +177,23 @@ svg {
 path {
   cursor: pointer;
 }
+
+
+
+
+
+.nav-item {
+  position: absolute;
+  color: #f5f5f5;
+  cursor: pointer;
+  font-size: 2rem;
+  z-index: 11;
+  &.anim--nav-tl {
+    top: 24px;
+    left: 24px;
+  }
+  &.anim--nav-tr {
+    top: 24px;
+    right: 24px;
+  }
+}
