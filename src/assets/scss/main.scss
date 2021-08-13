@@ -196,4 +196,12 @@ path {
     top: 24px;
     right: 24px;
   }
+  &.anim--nav-br {
+    bottom: 24px;
+    right: 24px;
+  }
+  &.anim--nav-bl {
+    bottom: 24px;
+    left: 24px;
+  }
 }

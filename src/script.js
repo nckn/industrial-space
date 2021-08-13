@@ -880,6 +880,8 @@ export default class Setup {
       .staggerFrom('.anim', stdTime, {y: 20, autoAlpha: 0, ease: Power4.easeInOut}, 0.1, `start+=${stdTime/2}`)
       .from('.anim--nav-tl', stdTime, {y: -120, autoAlpha: 0, ease: Power4.easeInOut}, 0.1, `start+=${stdTime}`)
       .from('.anim--nav-tr', stdTime, {x: 120, autoAlpha: 0, ease: Power4.easeInOut}, 0.1)
+      .from('.anim--nav-br', stdTime, {y: 120, autoAlpha: 0, ease: Power4.easeInOut}, 0.1)
+      .from('.anim--nav-bl', stdTime, {x: -120, autoAlpha: 0, ease: Power4.easeInOut}, 0.1)
       .pause()
   }
 
